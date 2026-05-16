@@ -34,11 +34,27 @@ def get_demo_wifi_data():
     signal_percent = int(max(0, min(100, 2 * (signal + 100))))
 
     return {
-        "ssid": "Demo WiFi Network",
+        "ssid": "Demo WiFi",
         "rssi_dbm": float(signal),
         "signal_percent": signal_percent,
         "frequency_ghz": 2.4,
     }
+
+
+def build_chart(current_signal, average_signal):
+    chart_df = pd.DataFrame(
+        {
+            "Type": ["Current Signal", "Average Signal"],
+            "Signal dBm": [current_signal, average_signal],
+        }
+    )
+
+    st.bar_chart(
+        chart_df,
+        x="Type",
+        y="Signal dBm",
+        use_container_width=True,
+    )
 
 
 def realtime_prediction_page():
@@ -48,7 +64,8 @@ def realtime_prediction_page():
             <div class="badge-green">Real-Time Mode</div>
             <div class="section-title">Real-Time WiFi Signal Prediction</div>
             <div class="section-desc">
-                This mode uses actual live WiFi signal when running locally. On Streamlit Cloud, demo live values are shown.
+                This mode uses actual live WiFi signal when running locally.
+                On Streamlit Cloud, demo live values are shown.
             </div>
         </div>
         """,
@@ -56,7 +73,6 @@ def realtime_prediction_page():
     )
 
     info = get_wifi_info()
-
     is_live_available = info.rssi_dbm is not None
 
     if is_live_available:
@@ -83,13 +99,13 @@ def realtime_prediction_page():
         st.metric("SSID", ssid)
 
     with col2:
-        st.metric("Current Signal", f"{current_signal} dBm")
+        st.metric("Signal", f"{current_signal} dBm")
 
     with col3:
-        st.metric("Signal Percentage", f"{signal_percent}%")
+        st.metric("Percent", f"{signal_percent}%")
 
     with col4:
-        st.metric("Frequency", f"{frequency_ghz} GHz")
+        st.metric("Freq", f"{frequency_ghz} GHz")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -119,19 +135,7 @@ def realtime_prediction_page():
 
         st.markdown("### Live Signal Reading")
 
-        chart_df = pd.DataFrame(
-            {
-                "Type": ["Current Signal", "Average Live Signal"],
-                "Signal dBm": [chart_current_signal, live_prediction],
-            }
-        )
-
-        st.bar_chart(
-            chart_df,
-            x="Type",
-            y="Signal dBm",
-            use_container_width=True,
-        )
+        build_chart(chart_current_signal, live_prediction)
 
         show_wifi_tips(live_prediction)
 
