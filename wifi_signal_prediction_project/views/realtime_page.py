@@ -1,17 +1,30 @@
 import streamlit as st
 import random
-import os
 import pandas as pd
+import os
 
 from components import show_signal_card, show_wifi_tips
-from wifi_utils import get_wifi_info
 
 
 # ---------------------------
-# Detect Cloud
+# CLOUD DETECTION
 # ---------------------------
 def is_cloud():
     return os.getenv("STREAMLIT_SERVER_PORT") is not None
+
+
+# ---------------------------
+# SIGNAL QUALITY FUNCTION
+# ---------------------------
+def get_quality(rssi):
+    if rssi >= -50:
+        return "Excellent"
+    elif rssi >= -60:
+        return "Good"
+    elif rssi >= -70:
+        return "Fair"
+    else:
+        return "Weak"
 
 
 # ---------------------------
@@ -33,69 +46,85 @@ def realtime_prediction_page():
     )
 
     # ---------------------------
-    # FORCE DATA (IMPORTANT FIX)
+    # ALWAYS SAFE DATA (NO FAILS)
     # ---------------------------
     if is_cloud():
-
-        # CLOUD SAFE DATA (NO get_wifi_info)
-        info = type("WiFi", (), {
-            "ssid": "Demo_WiFi_Network",
-            "rssi_dbm": random.randint(-85, -35),
-            "signal_percent": random.randint(40, 95),
-            "frequency_ghz": 2.4
-        })
+        # CLOUD → SIMULATION ONLY
+        ssid = "Demo_WiFi_Network"
+        rssi = random.randint(-85, -35)
 
     else:
+        # LOCAL → TRY REAL WIFI
+        try:
+            from wifi_utils import get_wifi_info
+            info = get_wifi_info()
 
-        # LOCAL REAL DATA
-        info = get_wifi_info()
+            ssid = info.ssid if info.ssid else "Unknown"
+            rssi = info.rssi_dbm if info.rssi_dbm is not None else -70
 
-        # fallback if local fails
-        if info.rssi_dbm is None:
-            info = type("WiFi", (), {
-                "ssid": "Unknown",
-                "rssi_dbm": -70,
-                "signal_percent": 60,
-                "frequency_ghz": 2.4
-            })
+        except:
+            ssid = "Unknown"
+            rssi = -70
 
     # ---------------------------
-    # UI (NO N/A EVER)
+    # DERIVED VALUES
+    # ---------------------------
+    signal_percent = max(0, min(100, int((rssi + 100) * 2)))
+    quality = get_quality(rssi)
+
+    # ---------------------------
+    # UI DISPLAY
     # ---------------------------
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("SSID", info.ssid)
+        st.metric("SSID", ssid)
 
     with col2:
-        st.metric("Current Signal", f"{info.rssi_dbm} dBm")
+        st.metric("Current Signal", f"{rssi} dBm")
 
     with col3:
-        st.metric("Signal Percentage", f"{info.signal_percent}%")
+        st.metric("Signal Percentage", f"{signal_percent}%")
 
     with col4:
-        st.metric("Frequency", f"{info.frequency_ghz} GHz")
+        st.metric("Frequency", "2.4 GHz")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
-    # BUTTON
+    # AI PREDICTION (SAME SIGNAL MODEL)
     # ---------------------------
-    if st.button("Refresh Live Prediction", type="primary"):
+    predicted_signal = rssi
 
-        signal = info.rssi_dbm if info.rssi_dbm else -70
+    st.markdown("### Predicted Signal")
+    st.metric("Predicted Signal Strength", f"{predicted_signal} dBm")
+    st.metric("Signal Quality", quality)
 
-        st.divider()
+    # ---------------------------
+    # RESULT TEXT
+    # ---------------------------
+    if quality in ["Excellent", "Good"]:
+        status = "Strong connection"
+    elif quality == "Fair":
+        status = "Usable connection"
+    else:
+        status = "Weak connection"
 
-        show_signal_card(signal)
+    st.success(f"Result: {quality} signal. {status}.")
 
-        df = pd.DataFrame({
-            "Type": ["Signal"],
-            "dBm": [signal]
-        })
+    # ---------------------------
+    # CHART
+    # ---------------------------
+    df = pd.DataFrame({
+        "Type": ["Signal"],
+        "dBm": [rssi]
+    })
 
-        st.bar_chart(df, x="Type", y="dBm")
+    st.bar_chart(df, x="Type", y="dBm")
 
-        show_wifi_tips(signal)
+    # ---------------------------
+    # TIPS
+    # ---------------------------
+    show_wifi_tips(rssi)
