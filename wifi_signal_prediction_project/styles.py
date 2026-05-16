@@ -160,77 +160,75 @@ def apply_custom_css():
         hr {
             border-color: #e5e7eb;
         }
+
+        @media (max-width: 768px) {
+            .main .block-container {
+                padding-top: 1rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                max-width: 100%;
+            }
+
+            .hero-card {
+                padding: 22px 18px;
+                border-radius: 20px;
+                margin-bottom: 18px;
+            }
+
+            .hero-title {
+                font-size: 25px;
+                line-height: 1.25;
+                letter-spacing: -0.3px;
+            }
+
+            .hero-subtitle {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .section-card {
+                padding: 18px 14px;
+                border-radius: 18px;
+                margin-bottom: 16px;
+            }
+
+            .section-title {
+                font-size: 21px;
+                line-height: 1.3;
+            }
+
+            .section-desc {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            div[data-testid="column"] {
+                width: 100% !important;
+                flex: 1 1 100% !important;
+                min-width: 100% !important;
+            }
+
+            div[data-testid="stMetric"] {
+                padding: 14px 14px;
+                margin-bottom: 10px;
+                border-radius: 16px;
+            }
+
+            div[data-testid="stMetricValue"] {
+                font-size: 22px;
+            }
+
+            .stButton > button {
+                width: 100%;
+                padding: 0.85rem 1rem;
+            }
+
+            .tip-item {
+                font-size: 14px;
+                padding: 12px 13px;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
-
-
-@media (max-width: 768px) {
-    .main .block-container {
-        padding-top: 1rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        max-width: 100%;
-    }
-
-    .hero-card {
-        padding: 22px 18px;
-        border-radius: 20px;
-        margin-bottom: 18px;
-    }
-
-    .hero-title {
-        font-size: 25px;
-        line-height: 1.25;
-        letter-spacing: -0.3px;
-    }
-
-    .hero-subtitle {
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .section-card {
-        padding: 18px 14px;
-        border-radius: 18px;
-        margin-bottom: 16px;
-    }
-
-    .section-title {
-        font-size: 21px;
-        line-height: 1.3;
-    }
-
-    .section-desc {
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    div[data-testid="column"] {
-        width: 100% !important;
-        flex: 1 1 100% !important;
-        min-width: 100% !important;
-    }
-
-    div[data-testid="stMetric"] {
-        padding: 14px 14px;
-        margin-bottom: 10px;
-        border-radius: 16px;
-    }
-
-    div[data-testid="stMetricValue"] {
-        font-size: 22px;
-    }
-
-    .stButton > button {
-        width: 100%;
-        padding: 0.85rem 1rem;
-    }
-
-    .tip-item {
-        font-size: 14px;
-        padding: 12px 13px;
-    }
-}
